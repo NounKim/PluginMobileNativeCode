@@ -12,24 +12,21 @@
 
 using namespace std;
 
-
-
 class AndroidUtils
 {
 public:
   //-- Free memory
   static bool DeleteJavaObject(jobject JavaObject)
   {
-    if(JavaObject)
-    {
+    if (JavaObject){
       JNIEnv* Env = FAndroidApplication::GetJavaEnv();
       Env->DeleteLocalRef(JavaObject);
       JavaObject = nullptr;
-      return true;
+      return 1;
     }
-    return false;
+    return 0;
   }
-
+  
   // -- Why do we need this structure?
   // -- https://stackoverflow.com/questions/47373354/c-void-argument-with-variadic-template
   template <typename T>
@@ -44,11 +41,11 @@ public:
   {
     return JavaConvert::GetJavaString(str);
   }
-  static jstring convertArg(const std::string& str)
+  static jstring convertArg(std::string str)
   {
     return JavaConvert::GetJavaString(str);
   }
-  static jstring convertArg(const FString& str)
+  static jstring convertArg(FString str)
   {
     return JavaConvert::GetJavaString(str);
   }
@@ -57,7 +54,7 @@ public:
     return JavaConvert::GetJavaLong(l);
   }
   //---array
-  static jobjectArray convertArg(const TArray<const char*>& stringArray)
+  static jobjectArray convertArg(TArray<const char*> stringArray)
   {
     TArray<FString> tmpFString;
     for (auto tmpCellStringArray : stringArray) {
@@ -66,7 +63,7 @@ public:
     }
     return JavaConvert::ConvertToJStringArray(tmpFString);
   }
-  static jobjectArray convertArg(const TArray<std::string>& stringArray)
+  static jobjectArray convertArg(TArray<std::string> stringArray)
   {
     TArray<FString> tmpFString;
     for (auto tmpCellStringArray : stringArray)
@@ -74,27 +71,27 @@ public:
 
     return JavaConvert::ConvertToJStringArray(tmpFString);
   }
-  static jobjectArray convertArg(const TArray<FString>& stringArray)
+  static jobjectArray convertArg(TArray<FString> stringArray)
   {
     return JavaConvert::ConvertToJStringArray(stringArray);
   }
-  static jbooleanArray convertArg(const TArray<bool>& boolArray)
+  static jbooleanArray convertArg(TArray<bool> boolArray)
   {
     return JavaConvert::ConvertToJBooleanArray(boolArray);
   }
-  static jintArray convertArg(const TArray<int>& intArray)
+  static jintArray convertArg(TArray<int> intArray)
   {
     return JavaConvert::ConvertToJIntArray(intArray);
   }
-  static jbyteArray convertArg(const TArray<uint8>& byteArray)
+  static jbyteArray convertArg(TArray<uint8> byteArray)
   {
     return JavaConvert::ConvertToJByteArray(byteArray);
   }
-  static jlongArray convertArg(const TArray<long>& longArray)
+  static jlongArray convertArg(TArray<long> longArray)
   {
     return JavaConvert::ConvertToJLongArray(longArray);
   }
-  static jfloatArray convertArg(const TArray<float>& floatArray)
+  static jfloatArray convertArg(TArray<float> floatArray)
   {
     return JavaConvert::ConvertToJFloatArray(floatArray);
   }
@@ -105,19 +102,19 @@ public:
   {
     return "V";
   }
-  static std::string GetTypeName(bool)
+  static std::string GetTypeName(bool b)
   {
     return "Z";
   }
-  static std::string GetTypeName(unsigned char)
+  static std::string GetTypeName(unsigned char uc)
   {
     return "B";
   }
-  static std::string GetTypeName(char)
+  static std::string GetTypeName(char c)
   {
     return "C";
   }
-  static std::string GetTypeName(short)
+  static std::string GetTypeName(short s)
   {
     return "S";
   }
@@ -125,61 +122,57 @@ public:
   {
     return "I";
   }
-  static std::string GetTypeName(unsigned int)
+  static std::string GetTypeName(unsigned int i)
   {
     return "I";
   }
-  static std::string GetTypeName(long)
+  static std::string GetTypeName(long l)
   {
     return "J";
   }
-  static std::string GetTypeName(float)
+  static std::string GetTypeName(float f)
   {
     return "F";
   }
-  static std::string GetTypeName(double)
+  static std::string GetTypeName(double d)
   {
     return "D";
   }
-  static std::string GetTypeName(const char*)
+  static std::string GetTypeName(const char* str)
   {
     return "Ljava/lang/String;";
   }
-  static std::string GetTypeName(const std::string&)
+  static std::string GetTypeName(std::string str)
   {
     return "Ljava/lang/String;";
   }
-  static std::string GetTypeName(const FString&)
+  static std::string GetTypeName(FString str)
   {
     return "Ljava/lang/String;";
   }
-  static std::string GetTypeName(jstring)
+  static std::string GetTypeName(jstring str)
   {
     return "Ljava/lang/String;";
   }
-  static std::string GetTypeName(jobject)
+  static std::string GetTypeName(jobject jo)
   {
     return "Ljava/lang/Object;";
   }
-
   //----array
-  static std::string GetTypeName(jobjectArray)
+  static std::string GetTypeName(jobjectArray joa)
   {
     return "[Ljava/lang/Object;";
   }
   template<typename anyType>
-  static std::string GetTypeName(const TArray<anyType>&)
-  {
+  static std::string GetTypeName(TArray<anyType> anyArr) {
     anyType SymbolType{};
     return std::string("[" + GetTypeName(SymbolType));
   }
   template<typename anyType>
-  static std::string GetTypeName(const vector<anyType>&)
-  {
+  static std::string GetTypeName(std::vector<anyType> anyArr) {
     anyType SymbolType{};
     return std::string("[" + GetTypeName(SymbolType));
   }
-  
 
   ///=============== Recursion Method for Variadic Template===========================
   // ------------ GetType
@@ -197,17 +190,11 @@ public:
   //========== UserObjectClass ==============
   static void CallJniVoidMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniVoidMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniVoidMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -219,17 +206,11 @@ public:
 
   static FString CallJniStringMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniStringMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniStringMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return TEXT("");
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return TEXT("");
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -245,17 +226,11 @@ public:
   }
   static bool CallJniBoolMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniBoolMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniBoolMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return false;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return false;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -268,17 +243,11 @@ public:
   }
   static int CallJniIntMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniIntMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniIntMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return 0;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return 0;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -291,17 +260,11 @@ public:
   }
   static long CallJniLongMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniLongMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniLongMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return 0;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return 0;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -314,17 +277,11 @@ public:
   }
   static jobject CallJniObjectMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniObjectMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniObjectMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -340,17 +297,11 @@ public:
   }
   static jobjectArray CallJniObjectArrayMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniObjectArray [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniObjectArray [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -365,17 +316,11 @@ public:
   }
   static jfloatArray CallJniFloatArrayMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniFloatArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniFloatArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -388,17 +333,11 @@ public:
   }
   static jintArray CallJniIntArrayMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniIntArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniIntArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -411,17 +350,11 @@ public:
   }
   static jlongArray CallJniLongArrayMethod(const ANSICHAR* ClassName, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallJniLongArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallJniLongArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = FAndroidApplication::FindJavaClass(ClassName);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindStaticMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -436,19 +369,13 @@ public:
   //========== JavaObjectClass ==============
   static void CallObjectJniVoidMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniVoidMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniVoidMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -460,19 +387,13 @@ public:
 
   static FString CallObjectJniStringMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniStringMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniStringMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return TEXT("");
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return TEXT("");
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -489,19 +410,13 @@ public:
   }
   static bool CallObjectJniBoolMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniBoolMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniBoolMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return false;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return false;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -514,19 +429,13 @@ public:
   }
   static int CallObjectJniIntMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniIntMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniIntMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return 0;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return 0;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -539,19 +448,15 @@ public:
   }
   static long CallObjectJniLongMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniLongMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniLongMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
+
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return 0;
-#endif
+
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return 0;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -564,19 +469,13 @@ public:
   }
   static jobject CallObjectJniObjectMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniObjectMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniObjectMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -585,26 +484,20 @@ public:
 
     Env->DeleteLocalRef(Class);
 
-    if (!Result)
+    if(!Result)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: return jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     return Result;
   }
   static jobjectArray CallObjectJniObjectArrayMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniObjectArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniObjectArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -619,19 +512,13 @@ public:
   }
   static jfloatArray CallObjectJniFloatArrayMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniFloatArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniFloatArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -644,19 +531,13 @@ public:
   }
   static jintArray CallObjectJniIntArrayMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniIntArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniIntArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -669,20 +550,14 @@ public:
   }
   static jlongArray CallObjectJniLongArrayMethod(jobject object, const ANSICHAR* MethodName, const ANSICHAR* MethodSignature, ...)
   {
-    UE_LOG(LogTemp, Log, TEXT("MobileNativeCode -> Method CallObjectJniLongArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
+    UE_LOG(LogTemp, Warning, TEXT("MobileNativeCode -> Method CallObjectJniLongArrayMethod [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     if (!object)
       UE_LOG(LogTemp, Error, TEXT("MobileNativeCode -> Err: jobject = null  [%s][%s]"), *FString(MethodName), *FString(MethodSignature));
 
     JNIEnv* Env = FAndroidApplication::GetJavaEnv();
     jclass Class = Env->GetObjectClass(object);
-#if UE_BUILD_SHIPPING
-    if (!Class) return nullptr;
-#endif
     jmethodID Method = FJavaWrapper::FindMethod(Env, Class, MethodName, MethodSignature, false);
-#if UE_BUILD_SHIPPING
-    if (!Method) return nullptr;
-#endif
 
     va_list Args;
     va_start(Args, MethodSignature);
@@ -748,68 +623,68 @@ public:
 
   // ------------ FString
   template<typename ...Args>
-  static FString CallJNI(const FString&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static FString CallJNI(FString str, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniStringMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ std::string
   template<typename ...Args>
-  static std::string CallJNI(const std::string&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static std::string CallJNI(std::string str, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     FString TempStr = CallJniStringMethod(ClassName, MethodName, MethodSignature, args...);
     return std::string(TCHAR_TO_UTF8(*TempStr));
   }
   // ------------ bool
   template<typename ...Args>
-  static bool CallJNI(bool, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static bool CallJNI(bool b, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniBoolMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ int
   template<typename ...Args>
-  static int CallJNI(int, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static int CallJNI(int i, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniIntMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ long
   template<typename ...Args>
-  static long CallJNI(long, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static long CallJNI(long l, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniLongMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ jobject
   template<typename ...Args>
-  static jobject CallJNI(jobject, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static jobject CallJNI(jobject jo, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniObjectMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ jobjectArray
   template<typename ...Args>
-  static jobjectArray CallJNI(jobjectArray, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static jobjectArray CallJNI(jobjectArray joa, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallJniObjectArrayMethod(ClassName, MethodName, MethodSignature, args...);
   }
   // ------------ TArray<FString>
   template<typename ...Args>
-  static TArray<FString> CallJNI(const TArray<FString>&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<FString> CallJNI(TArray<FString> strArr, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToStringArray(CallJniObjectArrayMethod(ClassName, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<float>
   template<typename ...Args>
-  static TArray<float> CallJNI(const TArray<float>&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<float> CallJNI(TArray<float> fArr, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToFloatArray(CallJniFloatArrayMethod(ClassName, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<int>
   template<typename ...Args>
-  static TArray<int> CallJNI(const TArray<int>&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<int> CallJNI(TArray<int> iArr, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToIntArray(CallJniIntArrayMethod(ClassName, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<long>
   template<typename ...Args>
-  static TArray<long> CallJNI(const TArray<long>&, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<long> CallJNI(TArray<long> lArr, const char* ClassName, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToLongArray(CallJniLongArrayMethod(ClassName, MethodName, MethodSignature, args...));
   }
@@ -859,68 +734,68 @@ public:
 
   // ------------ FString
   template<typename ...Args>
-  static FString CallObjectJNI(const FString&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static FString CallObjectJNI(FString str, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniStringMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ std::string
   template<typename ...Args>
-  static std::string CallObjectJNI(const std::string&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static std::string CallObjectJNI(std::string str, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     FString TempStr = CallObjectJniStringMethod(JavaObjectClass, MethodName, MethodSignature, args...);
     return std::string(TCHAR_TO_UTF8(*TempStr));
   }
   // ------------ bool
   template<typename ...Args>
-  static bool CallObjectJNI(bool, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static bool CallObjectJNI(bool b, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniBoolMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ int
   template<typename ...Args>
-  static int CallObjectJNI(int, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static int CallObjectJNI(int i, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniIntMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ long
   template<typename ...Args>
-  static long CallObjectJNI(long, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static long CallObjectJNI(long l, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniLongMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ jobject
   template<typename ...Args>
-  static jobject CallObjectJNI(jobject, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static jobject CallObjectJNI(jobject jo, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniObjectMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ jobjectArray
   template<typename ...Args>
-  static jobjectArray CallObjectJNI(jobjectArray, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static jobjectArray CallObjectJNI(jobjectArray joa, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return CallObjectJniObjectArrayMethod(JavaObjectClass, MethodName, MethodSignature, args...);
   }
   // ------------ TArray<FString>
   template<typename ...Args>
-  static TArray<FString> CallObjectJNI(const TArray<FString>&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<FString> CallObjectJNI(TArray<FString> strArr, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToStringArray(CallObjectJniObjectArrayMethod(JavaObjectClass, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<float>
   template<typename ...Args>
-  static TArray<float> CallObjectJNI(const TArray<float>&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<float> CallObjectJNI(TArray<float> fArr, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToFloatArray(CallObjectJniFloatArrayMethod(JavaObjectClass, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<int>
   template<typename ...Args>
-  static TArray<int> CallObjectJNI(const TArray<int>&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<int> CallObjectJNI(TArray<int> iArr, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToIntArray(CallObjectJniIntArrayMethod(JavaObjectClass, MethodName, MethodSignature, args...));
   }
   // ------------ TArray<long>
   template<typename ...Args>
-  static TArray<long> CallObjectJNI(const TArray<long>&, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
+  static TArray<long> CallObjectJNI(TArray<long> lArr, jobject JavaObjectClass, const char* MethodName, const char* MethodSignature, Args ...args)
   {
     return JavaConvert::ConvertToLongArray(CallObjectJniLongArrayMethod(JavaObjectClass, MethodName, MethodSignature, args...));
   }
@@ -933,7 +808,7 @@ public:
   * @param FunctionName -  Name of your Java function.
   * @param OverrideSignature -  Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
   * @param isActivity -  Determines whether to pass Activity UE4 to Java.
-  * @param args - A list of your parameters in the Java function.
+  * @param args... - A list of your parameters in the Java function.
   */
   template<typename MethodType, typename ...Args>
   static MethodType CallJavaCode(const char* ClassName, const char* FunctionName, const char* OverrideSignature, bool isActivity, Args ...args)
@@ -942,10 +817,10 @@ public:
   }
 
   /**
-  * @param JavaObjectClass - The object type which you need to call methods from the JAVA API.
+  * @param JavaObjectClass - the type of jobject from which you want to call a local Java function
   * @param FunctionName -  Name of your Java function.
   * @param OverrideSignature -  Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
-  * @param args - A list of your parameters in the Java function.
+  * @param args... - A list of your parameters in the Java function.
   */
   template<typename MethodType, typename ...Args>
   static MethodType CallJavaCode(jobject JavaObjectClass, const char* FunctionName, const char* OverrideSignature, Args ...args)

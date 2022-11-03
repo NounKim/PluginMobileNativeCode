@@ -148,6 +148,7 @@ TArray<FString> JavaConvert::ConvertToStringArray(jobjectArray javaStringArray)
 	for (int i = 0; i < length; i++)
 	{
 		jstring javaString = static_cast<jstring>(Env->GetObjectArrayElement(javaStringArray, i));
+
 		stringArray.Add(JavaConvert::FromJavaFString(javaString));
 	}
 
@@ -162,22 +163,36 @@ jlong JavaConvert::GetJavaLong(long l)
 }
 
 // FString to jstring
-jstring JavaConvert::GetJavaString(const FString& string)
+jstring JavaConvert::GetJavaString(FString string)
 {
-	return GetJavaString(TCHAR_TO_UTF8(*string));
+	JNIEnv* JEnv = AndroidJavaEnv::GetJavaEnv();
+	jstring local = JEnv->NewStringUTF(TCHAR_TO_UTF8(*string));
+	jstring result = (jstring)JEnv->NewGlobalRef(local);
+	JEnv->DeleteLocalRef(local);
+	return result;
 }
 
 // string to jstring
-jstring JavaConvert::GetJavaString(const string& str)
+jstring JavaConvert::GetJavaString(string str)
 {
-	return GetJavaString(str.c_str());
+	FString string = str.c_str();
+	JNIEnv* JEnv = AndroidJavaEnv::GetJavaEnv();
+	jstring local = JEnv->NewStringUTF(TCHAR_TO_UTF8(*string));
+	jstring result = (jstring)JEnv->NewGlobalRef(local);
+	JEnv->DeleteLocalRef(local);
+	return result;
 }
 
 // const char* to jstring
 jstring JavaConvert::GetJavaString(const char* str)
 {
+	string sstr = str;
+	FString string = sstr.c_str();
 	JNIEnv* JEnv = AndroidJavaEnv::GetJavaEnv();
-	return JEnv->NewStringUTF(str);
+	jstring local = JEnv->NewStringUTF(TCHAR_TO_UTF8(*string));
+	jstring result = (jstring)JEnv->NewGlobalRef(local);
+	JEnv->DeleteLocalRef(local);
+	return result;
 }
 
 // jstring to FString

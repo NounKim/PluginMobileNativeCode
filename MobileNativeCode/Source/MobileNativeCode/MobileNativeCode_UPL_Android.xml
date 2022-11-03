@@ -47,14 +47,16 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
     <!-- libc++_shared.so already added, but if you use the engine version 4.24 or less, you can uncomment these lines -->
     
     <isArch arch="armeabi-v7a">      
-      <!-- <copyFile src="$S(PluginDir)/ThirdParty/Android/armeabi-v7a/lib/libc++_shared.so"
-                dst="$S(BuildDir)/libs/armeabi-v7a/libc++_shared.so" /> -->
+      <!-- <copyFile src="$S(PluginDir)/ThirdParty/Android/armeabi-v7a/lib/libecdhcurve25519.so"
+                dst="$S(BuildDir)/libs/armeabi-v7a/libecdhcurve25519.so" /> -->
     </isArch>
 
     <isArch arch="arm64-v8a">
-      <!-- <copyFile src="$S(PluginDir)/ThirdParty/Android/arm64-v8a/lib/libc++_shared.so"
-                dst="$S(BuildDir)/libs/arm64-v8a/libc++_shared.so" /> -->
+      <!-- <copyFile src="$S(PluginDir)/ThirdParty/Android/arm64-v8a/lib/libecdhcurve25519.so"
+                dst="$S(BuildDir)/libs/arm64-v8a/libecdhcurve25519.so" /> -->
     </isArch>
+
+     <copyFile src="$S(PluginDir)/libs/ecdh-curve25519.jar" dst="$S(BuildDir)/libs/ecdh-curve25519.jar" />
 
   </resourceCopies>
 
@@ -86,10 +88,11 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
 
 
   <!-- Enable libraries in the app itself (Sometimes you don't need to). Optional libraries to load in GameActivity.java before libUE4.so -->
-  <soLoadLibrary>
     <!--<loadLibrary name="c++_shared" 
                               failmsg="XML! libc++_shared.so library not loaded and required!" />-->
-  </soLoadLibrary>
+
+  <loadLibrary name="libecdhcurve25519" failmsg="XML! liblibecdhcurve25519.so library not loaded and required!" />
+  
 
 
   <!-- optional updates applied to AndroidManifest.xml -->
@@ -97,17 +100,14 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
         
     <addElements tag="application">      
       <!-- Your lines that you want to add to the "application" section -->
-      
-      <!-- 
-      EXAMPLE!
-      <addAttribute tag="application" name="android:requestLegacyExternalStorage" value="true"/>
-      -->
+
       
     </addElements>
 
     <!-- Adding your own Permission -->
-    <addPermission android:name="com.android.permission.READ_EXTERNAL_STORAGE"/>
-    <addPermission android:name="com.android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <addPermission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <addPermission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <addPermission android:name="android.permission.VIBRATE"/>
 
   </androidManifestUpdates>
 
@@ -115,6 +115,7 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
   <!-- optional app build.gradle additions -->
   <buildGradleAdditions>
     <insert>
+
       ext {
           android {
               buildTypes {
@@ -129,17 +130,16 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
         mavenCentral()
         jcenter()
       }
-
+      
       <!-- Here you can specify your own dependencies for downloading *.AAR libraries over the Internet. -->
       dependencies {
-        implementation("com.squareup.okhttp3:okhttp:3.12.13")
-        implementation("com.squareup.okhttp3:okhttp-urlconnection:3.12.13")
-  
-        implementation 'com.google.android.play:core:1.8.0'
         implementation 'com.google.guava:guava:28.2-android'
-  
-        implementation 'androidx.annotation:annotation:1.0.0'
       }
+
+      <!-- dependencies {
+        implementation files('libs\\ecdh-curve25519.jar')
+    } -->
+
     </insert>
   </buildGradleAdditions>
 
@@ -200,6 +200,56 @@ https://docs.unrealengine.com/en-US/SharingAndReleasing/Mobile/UnrealPluginLangu
   <minimumSDKAPI>
 
   </minimumSDKAPI>
+	
+  <gameActivityImportAdditions>
+	<insert>
 
+//MobileNativeCode_import
+import android.view.View;
+import android.widget.ImageView;
+import com.Plugins.MobileNativeCode.asyncAndroidFunctionLibClass;
+
+
+	</insert>
+  </gameActivityImportAdditions>
+
+<gameActivityOnActivityResultAdditions>
+<insert>
+
+
+    asyncAndroidFunctionLibClass AFC = new asyncAndroidFunctionLibClass();
+    //AFC.showToast("Step 1: Create AFC");
+		if(requestCode == 1723828)
+		{
+			if(resultCode == RESULT_OK)
+			{
+        
+        //AFC.showToast("Step 2: ImageData Check");
+				Uri FileUri = data.getData();
+				ImageView VerifyImage = new ImageView(this);
+				VerifyImage.setImageURI(FileUri);
+
+				if(VerifyImage.getDrawable() != null)
+				{
+					//AFC.showToast("VerifyImage.getDrawable");
+					String packageName = getApplicationContext().getPackageName();
+
+					//showToast("AppName: " + packageName);
+
+					AFC.sendPictureToApplicationPath(this, packageName, FileUri);
+				}
+			}
+			else
+			{
+			}
+		}
+		else
+		{
+			String reqCode = String.valueOf(requestCode);
+			AFC.showToast(reqCode + "Is not 172383");
+		}
+
+</insert>
+</gameActivityOnActivityResultAdditions>
 
 </root>

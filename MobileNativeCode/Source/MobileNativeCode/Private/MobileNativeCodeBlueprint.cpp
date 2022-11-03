@@ -24,6 +24,7 @@ using namespace std;
 #include "IOS/ObjC/IosNativeUI.h"
 #include "IOS/ObjC/IosExampleArray.h"
 #include "IOS/ObjC/IosDeviceInfo.h"
+#include "..\Public\MobileNativeCodeBlueprint.h"
 #endif
 
 #if PLATFORM_ANDROID
@@ -52,10 +53,10 @@ FString UMobileNativeCodeBlueprint::HelloWorld(FString MyStr /*= "Hello World"*/
 
   MyStr = AndroidUtils::CallJavaCode<FString>(
     "com/Plugins/MobileNativeCode/HelloWorldClass",     // package (used by com/Plugins/MobileNativeCode) and the name of your Java class.
-    "HelloWorldOnAndroid",                              //Name of your Java function.
-    "",                                                 //Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
-    false,                                              //Determines whether to pass Activity UE4 to Java.
-    MyStr                                               //A list of your parameters in the Java function.
+    "HelloWorldOnAndroid",                                                //Name of your Java function.
+    "",                                                                                     //Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+    false,                                                                                 //Determines whether to pass Activity UE4 to Java.
+    MyStr                                                                               //A list of your parameters in the Java function.
   );
 
 #endif //Android
@@ -112,12 +113,19 @@ void UMobileNativeCodeBlueprint::StaticFunctDispatch(const FString& ReturnValue)
 }
 
 //-- Functions CallBack for Java code
-#if PLATFORM_ANDROID
+#if PLATFORM_ANDROID // 디스패치 사용하려면 추가할 것
 JNI_METHOD void Java_com_Plugins_MobileNativeCode_asyncHelloWorldClass_CallBackCppAndroid(JNIEnv* env, jclass clazz, jstring returnStr)
 {
   FString result = JavaConvert::FromJavaFString(returnStr);
   UE_LOG(LogTemp, Warning, TEXT("asyncHelloWorld callback caught in C++! - [%s]"), *FString(result)); //Debug log for UE4
   UMobileNativeCodeBlueprint::StaticFunctDispatch(result);// Call Dispatcher
+}
+
+JNI_METHOD void Java_com_Plugins_MobileNativeCode_asyncAndroidFunctionLibClass_CallBackAndroidForImage(JNIEnv* env, jclass clazz, jstring returnStr)
+{
+    FString result = JavaConvert::FromJavaFString(returnStr);
+    UE_LOG(LogTemp, Warning, TEXT("asyncAndroidFunctionLibClass callback caught in C++! - [%s]"), *FString(result)); //Debug log for UE4
+    UMobileNativeCodeBlueprint::StaticFunctDispatch(result);// Call Dispatcher
 }
 #endif //PLATFORM_ANDROID
 
@@ -173,10 +181,10 @@ void UMobileNativeCodeBlueprint::ExampleArray(FString& Arr1, FString& Arr2)
 
   TestStrArr = AndroidUtils::CallJavaCode<TArray<FString>>(
     "com/Plugins/MobileNativeCode/ExampleArrayClass",             // package (used by com/Plugins/MobileNativeCode) and the name of your Java class.
-    "TestArray",                                                  // Name of your Java function.
-    "",                                                           // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
-    false,                                                        // Determines whether to pass Activity UE4 to Java.
-    a1, a2, a3, a4, a5                                            //A list of your parameters in the Java function.
+    "TestArray",                                                                                  // Name of your Java function.
+    "",                                                                                                  // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+    false,                                                                                              // Determines whether to pass Activity UE4 to Java.
+    a1, a2, a3, a4, a5                                                                            //A list of your parameters in the Java function.
   );
 
 #endif //Android
@@ -247,18 +255,18 @@ void UMobileNativeCodeBlueprint::ExampleMyJavaObject(FString& JavaBundle)
 
   jobject myJavaObject = AndroidUtils::CallJavaCode<jobject>(
     "com/Plugins/MobileNativeCode/MyJavaObjects",  // package (used by com/Plugins/MobileNativeCode) and the name of your Java class.
-    "getBundleJava",                               // Name of your Java function.
-    "()Landroid/os/Bundle;",                       // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
-    false                                          // Determines whether to pass Activity UE4 to Java.
+    "getBundleJava",                                                        // Name of your Java function.
+    "()Landroid/os/Bundle;",                                            // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+    false                                                                            // Determines whether to pass Activity UE4 to Java.
     );
 
   // Functions such as putString and putDouble are defined inside Bunde. Let's call them with our parameters:
 
   AndroidUtils::CallJavaCode<void>(
     myJavaObject,         // the type of jobject from which you want to call a local Java function
-    "putFloat",           // Name of Java function.
-    "",                   // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
-    "myKey", 1234.f       // A list of your parameters in the Java function.
+    "putFloat",               // Name of Java function.
+    "",                            // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+    "myKey", 1234.f     // A list of your parameters in the Java function.
     );
 
   AndroidUtils::CallJavaCode<void>(
@@ -272,12 +280,148 @@ void UMobileNativeCodeBlueprint::ExampleMyJavaObject(FString& JavaBundle)
   // Let's see what's inside our Bundle
   JavaBundle = AndroidUtils::CallJavaCode<FString>(
     myJavaObject,         // the type of jobject from which you want to call a local Java function
-    "toString",           // Name of Java function.
-    ""                    // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+    "toString",               // Name of Java function.
+    ""                             // Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
     );
 
   // After you have finished working with your jobject, you need to delete it
   AndroidUtils::DeleteJavaObject(myJavaObject);
 
 #endif //Android
+}
+
+// 갤러리 여는 함수
+void UMobileNativeCodeBlueprint::OpenGallery()
+{
+#if PLATFORM_ANDROID
+
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",     // package (used by com/Plugins/MobileNativeCode) and the name of your Java class.
+        "GalleryOpen",                                                //Name of your Java function.
+        "",                                                                                     //Set your own signature instead of an automatic one (Send an empty one if you need an automatic one).
+        true                                                                     //Determines whether to pass Activity UE4 to Java.
+                                                                             //A list of your parameters in the Java function.
+        );
+
+#endif //Android
+}
+
+void UMobileNativeCodeBlueprint::OpenGallery_CallBack_Size(int return_size)
+{
+#if PLATFORM_ANDROID
+
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",
+        "OpenGallery_Create_Profile",
+        "",
+        true,
+        return_size
+        );
+
+#endif //Android
+}
+
+// static 딜리게이트를 블루프린트로 노출시킬 수 없으므로 우회하는 함수
+
+void UMobileNativeCodeBlueprint::DispatchGetter(const FTypeDispacth& CallBackPlatform)
+{
+    UMobileNativeCodeBlueprint::StaticValueDispatch = CallBackPlatform;
+#if PLATFORM_ANDROID
+
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",
+        "CallBackFunction",
+        "",
+        true
+        );
+
+#endif //Android
+}
+
+
+void UMobileNativeCodeBlueprint::CreateSecretKey()
+{
+#if PLATFORM_ANDROID
+
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",
+        "CreateSecretKey",
+        "",
+        true
+        );
+
+#endif
+}
+
+
+void UMobileNativeCodeBlueprint::CreatePublicKey()
+{
+#if PLATFORM_ANDROID
+
+ AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",
+        "CreatePublicKey",
+        "",
+        false
+        );
+
+#endif
+}
+
+void UMobileNativeCodeBlueprint::CreateSharedKey()
+{
+#if PLATFORM_ANDROID
+
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/asyncAndroidFunctionLibClass",
+        "CreateSharedcKey",
+        "",
+        false
+        );
+
+#endif
+}
+
+void UMobileNativeCodeBlueprint::SaveOpponentKey(TArray<uint8> OpponentKey)
+{
+
+}
+
+
+
+void UMobileNativeCodeBlueprint::Vibrate_During_Duration(int duration)
+{
+#if PLATFORM_ANDROID
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/Vibrate",
+        "Vibrate_During_Duration",
+        "",
+        true,
+        duration
+        );
+#endif
+}
+
+void  UMobileNativeCodeBlueprint::Vibrate_Keep_Going()
+{
+#if PLATFORM_ANDROID
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/Vibrate",
+        "Vibrate_Keep_Going",
+        "",
+        true
+        );
+#endif
+}
+
+void  UMobileNativeCodeBlueprint::Vibrate_Cancel()
+{
+#if PLATFORM_ANDROID
+    AndroidUtils::CallJavaCode<void>(
+        "com/Plugins/MobileNativeCode/Vibrate",
+        "Vibrate_Cancel",
+        "",
+        true
+        );
+#endif
 }
